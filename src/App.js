@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
+import { validate } from './validation';
 
 const App = () => {
   const [apiData, setAPIData] = useState(); //what do we want to get here?
   const [character, setCharacter] = useState('');
+  const [errors, setErrors] = useState(null); //null means no errors
 
   const getData = useCallback(async () => {
     try {
@@ -18,21 +20,19 @@ const App = () => {
     }
   }, [character]); //[getData] shows that this is dependent on character changes
 
-  console.log(apiData, character);
-
   useEffect(() => {
     getData();
   }, [getData]); //[getData] shows that this is dependent on getData changes
 
-  const onInput = (e) => {
+  const onInput = async (e) => {
     const { value } = e.target;
-    if (value.includes('fck')) {
-      //adding an input check
-      setCharacter('***');
-      return;
-    }
+    setCharacter(value);
 
-    setCharacter(e.target.value);
+    //validate
+    const res = await validate(value);
+    setErrors(res);
+
+    console.log(character);
   };
 
   if (apiData && console.log(apiData));
@@ -47,6 +47,7 @@ const App = () => {
         value={character}
         onInput={onInput}
       ></input>
+      <p>{errors}</p>
       <p> {character}</p>
 
       {apiData.map((item) => {
